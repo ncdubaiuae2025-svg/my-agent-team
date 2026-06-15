@@ -1,0 +1,18 @@
+name: Test Gemini
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Gemini
+        env:
+          GEMINI_KEY: ${{ secrets.KEY_TEST_GMINE3 }}
+        run: |
+          curl -s https://openrouter.ai/api/v1/chat/completions \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $GEMINI_KEY" \
+            -d '{"model":"google/gemini-3-flash","messages":[{"role":"user","content":"مرحبا"}]}' \
+            | jq -r '.choices[0].message.content // "خطأ: لا يوجد رد"'
