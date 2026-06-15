@@ -1,4 +1,4 @@
-name: Test Gemini
+name: Test OpenRouter Raw
 
 on:
   workflow_dispatch:
@@ -7,12 +7,19 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Call Gemini
+      - name: Call OpenRouter
         env:
-          GEMINI_KEY: ${{ secrets.KEY_TEST_GMINE3 }}
+          API_KEY: ${{ secrets.KEY_TEST_GMINE3 }}
         run: |
           curl -s https://openrouter.ai/api/v1/chat/completions \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $GEMINI_KEY" \
+            -H "Authorization: Bearer $API_KEY" \
             -d '{"model":"google/gemini-3-flash","messages":[{"role":"user","content":"مرحبا"}]}' \
-            | jq -r '.choices[0].message.content // "خطأ: لا يوجد رد"'
+            -o response.json
+          cat response.json
+          echo "=== END ==="
+      - name: Upload response
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-response
+          path: response.json
