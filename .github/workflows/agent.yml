@@ -1,0 +1,25 @@
+name: Run AI Agent
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # كل ساعة
+  workflow_dispatch:      # يدويًا
+
+jobs:
+  agent-task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run AI Agent
+        run: |
+          echo "مرحبًا من وكيل الذكاء الاصطناعي!" > output.txt
+          echo "التاريخ: $(date)" >> output.txt
+          cat output.txt
+      
+      - name: Save result
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-log
+          path: output.txt
