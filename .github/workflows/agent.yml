@@ -1,25 +1,28 @@
-name: Run AI Agent
+name: DeepSeek Agent
 
 on:
-  schedule:
-    - cron: '0 * * * *'  # كل ساعة
-  workflow_dispatch:      # يدويًا
+  workflow_dispatch:  # تشغيل يدوي فقط (للتجربة)
 
 jobs:
-  agent-task:
+  ask-deepseek:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Run AI Agent
+      - name: Call DeepSeek API
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
-          echo "مرحبًا من وكيل الذكاء الاصطناعي!" > output.txt
-          echo "التاريخ: $(date)" >> output.txt
-          cat output.txt
-      
-      - name: Save result
+          RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+            -d '{
+              "model": "deepseek/deepseek-chat",
+              "messages": [{"role": "user", "content": "قل مرحباً بالعربية واشرح بإيجاز كيف يمكنك مساعدة قبيلة أو عشيرة في إدارة منصة إلكترونية"}]
+            }')
+          echo "رد DeepSeek:" > response.txt
+          echo "$RESPONSE" | jq -r '.choices[0].message.content' >> response.txt
+          cat response.txt
+      - name: Save response
         uses: actions/upload-artifact@v4
         with:
-          name: agent-log
-          path: output.txt
+          name: deepseek-response
+          path: response.txt
