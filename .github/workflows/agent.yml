@@ -1,27 +1,26 @@
 name: DeepSeek Agent
 
 on:
-  workflow_dispatch:  # تشغيل يدوي فقط (للتجربة)
+  workflow_dispatch:
 
 jobs:
   ask-deepseek:
     runs-on: ubuntu-latest
     steps:
-      - name: Call DeepSeek API
+      - name: Call DeepSeek via OpenRouter
         env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          API_KEY: ${{ secrets.API_KEY }}
         run: |
           RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+            -H "Authorization: Bearer $API_KEY" \
             -d '{
               "model": "deepseek/deepseek-chat",
               "messages": [{"role": "user", "content": "قل مرحباً بالعربية واشرح بإيجاز كيف يمكنك مساعدة قبيلة أو عشيرة في إدارة منصة إلكترونية"}]
             }')
-          echo "رد DeepSeek:" > response.txt
-          echo "$RESPONSE" | jq -r '.choices[0].message.content' >> response.txt
+          echo "$RESPONSE" | jq -r '.choices[0].message.content' > response.txt
           cat response.txt
-      - name: Save response
+      - name: Upload response
         uses: actions/upload-artifact@v4
         with:
           name: deepseek-response
